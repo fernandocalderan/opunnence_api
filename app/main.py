@@ -1,6 +1,7 @@
 import os
 
 from fastapi import FastAPI, Depends, HTTPException, status
+from fastapi.middleware.cors import CORSMiddleware
 from fastapi.staticfiles import StaticFiles
 from fastapi.responses import FileResponse
 from sqlalchemy.orm import Session
@@ -18,6 +19,23 @@ app = FastAPI(
     title="Opunnence API",
     description="Backend unificado con frontend estático para Opunnence",
     version="2.1.0"
+)
+
+cors_origins = [
+    origin.strip()
+    for origin in os.getenv("CORS_ALLOWED_ORIGINS", "").split(",")
+    if origin.strip()
+]
+
+if not cors_origins:
+    cors_origins = ["*"]
+
+app.add_middleware(
+    CORSMiddleware,
+    allow_origins=cors_origins,
+    allow_credentials=True,
+    allow_methods=["POST", "OPTIONS"],
+    allow_headers=["content-type", "accept"],
 )
 
 # --- 💠 RUTAS DE API --- #
