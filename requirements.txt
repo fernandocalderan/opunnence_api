@@ -5,3 +5,4 @@ sqlalchemy
 psycopg[binary]
 aiofiles
 email-validator
+resend

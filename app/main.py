@@ -2,11 +2,11 @@ from fastapi import FastAPI, Depends, HTTPException, status
 from fastapi.staticfiles import StaticFiles
 from fastapi.responses import FileResponse
 from sqlalchemy.orm import Session
-import os
 
 # Importar módulos internos
 from app import models, schemas
 from app.database import Base, engine, get_db
+from app.mailer import MailerConfigError, send_contact_email
 
 # Crear las tablas automáticamente
 Base.metadata.create_all(bind=engine)
@@ -64,6 +64,23 @@ def submit_contact_form(
     db.add(contact_entry)
     db.commit()
     db.refresh(contact_entry)
+
+    try:
+        send_contact_email(
+            name=contact_entry.name,
+            email=contact_entry.email,
+            message=contact_entry.message or "",
+        )
+    except MailerConfigError as exc:
+        raise HTTPException(
+            status_code=status.HTTP_500_INTERNAL_SERVER_ERROR,
+            detail="Servicio de correo no configurado correctamente.",
+        ) from exc
+    except Exception as exc:  # noqa: BLE001
+        raise HTTPException(
+            status_code=status.HTTP_502_BAD_GATEWAY,
+            detail="No pudimos enviar la notificación por correo.",
+        ) from exc
 
     return contact_entry
 
