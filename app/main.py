@@ -1,4 +1,4 @@
-from fastapi import FastAPI, Depends, HTTPException
+from fastapi import FastAPI, Depends, HTTPException, status
 from fastapi.staticfiles import StaticFiles
 from fastapi.responses import FileResponse
 from sqlalchemy.orm import Session
@@ -42,6 +42,30 @@ def create_user(user: schemas.UserCreate, db: Session = Depends(get_db)):
     db.commit()
     db.refresh(new_user)
     return new_user
+
+
+@app.post(
+    "/contact",
+    response_model=schemas.ContactSubmissionResponse,
+    status_code=status.HTTP_201_CREATED,
+    summary="Registra una solicitud del formulario de contacto",
+)
+def submit_contact_form(
+    submission: schemas.ContactSubmissionCreate, db: Session = Depends(get_db)
+):
+    """Guarda los datos enviados desde el formulario de contacto."""
+    contact_entry = models.ContactSubmission(
+        name=submission.name,
+        email=submission.email,
+        role=submission.role,
+        message=submission.message,
+    )
+
+    db.add(contact_entry)
+    db.commit()
+    db.refresh(contact_entry)
+
+    return contact_entry
 
 
 # --- 🌐 FRONTEND --- #
