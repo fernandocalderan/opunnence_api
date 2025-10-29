@@ -1,15 +1,46 @@
+# ==============================================================
+# Render Deployment Configuration for Opunnence API + Frontend
+# ==============================================================
+
 services:
   - type: web
     name: opunnence-api
     runtime: python
+    region: frankfurt     # Puedes usar oregon, virginia, singapur o frankfurt (UE)
     plan: free
-    region: frankfurt
-    buildCommand: "pip install -r requirements.txt"
-    startCommand: "uvicorn app.main:app --host 0.0.0.0 --port 10000"
+
+    # ------------------------------------------
+    # 🧱 BUILD COMMANDS
+    # Instala dependencias y prepara el entorno
+    # ------------------------------------------
+    buildCommand: |
+      pip install --upgrade pip
+      pip install -r requirements.txt
+
+    # ------------------------------------------
+    # 🚀 START COMMAND
+    # Ejecuta FastAPI (sirve API + página web)
+    # ------------------------------------------
+    startCommand: uvicorn app.main:app --host 0.0.0.0 --port 10000
+
+    # ------------------------------------------
+    # ⚙️ ENVIRONMENT VARIABLES
+    # Render las usará automáticamente al iniciar
+    # ------------------------------------------
     envVars:
       - key: ENVIRONMENT
         value: production
       - key: DOMAIN
-        value: api.opunnence.com
+        value: www.opunnence.com
       - key: DATABASE_URL
         sync: false  # Se configurará manualmente desde el panel de Render
+      - key: PYTHON_VERSION
+        value: 3.11.9
+
+    # ------------------------------------------
+    # 🌍 HEALTH CHECK
+    # Render usa este endpoint para saber si la app está viva
+    # ------------------------------------------
+    healthCheckPath: /health
+    autoDeploy: true
+
