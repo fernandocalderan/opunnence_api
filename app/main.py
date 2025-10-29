@@ -23,3 +23,16 @@ def home():
 @app.get("/health")
 def health_check():
     return {"health": "✅ healthy"}
+
+from fastapi.staticfiles import StaticFiles
+from fastapi.responses import FileResponse
+import os
+
+# Servir carpeta 'frontend'
+app.mount("/static", StaticFiles(directory="frontend"), name="static")
+
+# Ruta raíz que devuelve el index.html
+@app.get("/", include_in_schema=False)
+def serve_home():
+    index_path = os.path.join("frontend", "index.html")
+    return FileResponse(index_path)
