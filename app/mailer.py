@@ -1,7 +1,7 @@
 import os
 from html import escape
 
-from resend import Emails
+import resend
 
 
 class MailerConfigError(RuntimeError):
@@ -19,13 +19,14 @@ def send_contact_email(name: str, email: str, message: str | None = None) -> Non
     """Envía una notificación vía Resend con el contenido del formulario de contacto."""
     api_key = _get_env("RESEND_API_KEY")
     to_email = _get_env("CONTACT_NOTIFICATION_EMAIL")
-    os.environ["RESEND_API_KEY"] = api_key  # requerido por la librería
+
+    resend.api_key = api_key
 
     safe_name = escape(name or "")
     safe_email = escape(email or "")
     safe_message = escape(message or "") or "—"
 
-    Emails.send(
+    resend.Emails.send(
         {
             "to": to_email,
             "from": "onboarding@resend.dev",
