@@ -37,8 +37,11 @@ python -m venv venv
 source venv/bin/activate  # o venv\Scripts\activate (Windows)
 pip install -r requirements.txt
 cp .env.example .env
-# Actualiza `DATABASE_URL` con tu conexión de PostgreSQL si la tienes lista.
+# Opcional: crea un archivo `.env.local` (se ignora en git) y define ahí tu `DATABASE_URL`.
 # Si mantienes el valor de ejemplo, la app usará SQLite local (`opunnence.db`) para desarrollo.
+# Para usar un PostgreSQL local (por ejemplo Docker), define en tu entorno:
+#   DATABASE_URL=postgresql://usuario:password@localhost:5432/tu_db
+# o añade esa línea en `.env.local` únicamente en tu máquina.
 uvicorn app.main:app --reload
 ```
 
